@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bridge Automation — Atendimento automatizado para Instagram e WhatsApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #16213E;
+    --navy-2: #1E2C4F;
+    --cream: #FBF8F3;
+    --paper: #FFFFFF;
+    --gold: #E0A63A;
+    --gold-dark: #C48A22;
+    --ink: #1E2430;
+    --ink-soft: #545B68;
+    --slate: #5C7290;
+    --line: #E7E1D6;
+    --ig-tag: #C1447E;
+    --wa-tag: #2E9E5B;
+    --radius: 20px;
+    --radius-sm: 12px;
+    --shadow: 0 20px 50px -20px rgba(22, 33, 62, 0.25);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Sora', sans-serif;
+    color: var(--navy);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  img, svg { display: block; max-width: 100%; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .tag-mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--gold-dark);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ---------- NAV ---------- */
+  header.nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(251, 248, 243, 0.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--navy);
+  }
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+  }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .nav-links a:hover { color: var(--navy); }
+  .nav-cta {
+    background: var(--navy);
+    color: var(--cream);
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform .18s ease, background .18s ease;
+    white-space: nowrap;
+  }
+  .nav-cta:hover { background: var(--navy-2); transform: translateY(-1px); }
+
+  @media (max-width: 760px) {
+    .nav-links { display: none; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    padding: 76px 0 60px;
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 7px 14px;
+    border-radius: 999px;
+    color: var(--navy);
+    margin-bottom: 22px;
+  }
+  .eyebrow-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+  .hero h1 {
+    font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+    line-height: 1.08;
+    margin-bottom: 22px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--gold-dark);
+  }
+  .hero p.lede {
+    font-size: 17.5px;
+    color: var(--ink-soft);
+    max-width: 46ch;
+    margin-bottom: 32px;
+  }
+  .cta-row {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gold);
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 15.5px;
+    padding: 15px 26px;
+    border-radius: 999px;
+    box-shadow: 0 12px 24px -10px rgba(224, 166, 58, 0.55);
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    background: var(--gold-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px -10px rgba(196, 138, 34, 0.6);
+  }
+  .btn-primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .link-secondary {
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--navy);
+    border-bottom: 1px solid var(--slate);
+    padding-bottom: 2px;
+  }
+
+  /* ---------- HERO DEMO (signature) ---------- */
+  .demo-stage {
+    position: relative;
+    min-height: 460px;
+  }
+  .phone {
+    position: relative;
+    width: 290px;
+    background: var(--paper);
+    border-radius: 32px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    padding: 14px 14px 20px;
+    margin: 0 auto;
+    z-index: 2;
+  }
+  .phone-notch {
+    width: 60px; height: 5px;
+    background: var(--line);
+    border-radius: 999px;
+    margin: 0 auto 12px;
+  }
+  .phone-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 4px 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--ig-tag));
+    flex-shrink: 0;
+  }
+  .phone-head .who { font-size: 13.5px; font-weight: 700; color: var(--navy); }
+  .phone-head .sub { font-size: 11px; color: var(--ink-soft); }
+  .chan-chip {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--ig-tag);
+  }
+  .bubble {
+    max-width: 82%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: pop .5s ease forwards;
+  }
+  .bubble.them {
+    background: #F1EEE7;
+    color: var(--ink);
+    border-bottom-left-radius: 4px;
+  }
+  .bubble.us {
+    background: var(--navy);
+    color: var(--cream);
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+  .b1 { animation-delay: .2s; }
+  .b2 { animation-delay: 1.1s; }
+  .b3 { animation-delay: 2.5s; }
+
+  .typing {
+    display: inline-flex;
+    gap: 4px;
+    background: var(--navy);
+    padding: 12px 14px;
+    border-radius: 16px;
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+    width: fit-content;
+    opacity: 0;
+    animation: typingshow 1.4s ease forwards;
+    animation-delay: 1.1s;
+  }
+  .typing span {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--cream);
+    opacity: .5;
+    animation: blink 1s infinite ease-in-out;
+  }
+  .typing span:nth-child(2) { animation-delay: .15s; }
+  .typing span:nth-child(3) { animation-delay: .3s; }
+
+  @keyframes pop {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes typingshow {
+    0% { opacity: 0; }
+    8% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: .3; }
+    50% { opacity: 1; }
+  }
+
+  .wa-peek {
+    position: absolute;
+    right: -6px;
+    bottom: 18px;
+    width: 210px;
+    background: var(--paper);
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    padding: 14px;
+    z-index: 3;
+    opacity: 0;
+    animation: pop .6s ease forwards;
+    animation-delay: 3.2s;
+  }
+  .wa-peek .chan-chip { background: var(--wa-tag); margin-left: 0; }
+  .wa-peek .wa-msg {
+    margin-top: 10px;
+    font-size: 12.5px;
+    background: #EAF6EE;
+    padding: 9px 12px;
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    color: var(--ink);
+  }
+
+  @media (max-width: 940px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .demo-stage { min-height: 380px; margin-top: 20px; }
+    .wa-peek { right: 50%; transform: translateX(50%); bottom: -30px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bubble, .typing, .wa-peek { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .typing { display: none; }
+  }
+
+  /* ---------- SECTION SHARED ---------- */
+  section { padding: 88px 0; }
+  .section-head {
+    max-width: 640px;
+    margin-bottom: 52px;
+  }
+  .section-head .tag-mono { color: var(--gold-dark); margin-bottom: 12px; display: block; }
+  .section-head h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); margin-bottom: 14px; }
+  .section-head p { color: var(--ink-soft); font-size: 16px; }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  .step {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 30px 26px;
+    position: relative;
+  }
+  .step .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--gold-dark);
+    margin-bottom: 18px;
+    display: block;
+  }
+  .step h3 { font-size: 18px; margin-bottom: 10px; }
+  .step p { color: var(--ink-soft); font-size: 14.5px; }
+
+  @media (max-width: 940px) {
+    .steps { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- CHANNELS ---------- */
+  .channels {
+    background: var(--navy);
+    color: var(--cream);
+  }
+  .channels .section-head h2 { color: var(--cream); }
+  .channels .section-head p { color: #C7CEDE; }
+  .channels .section-head .tag-mono { color: var(--gold); }
+  .chan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 26px;
+  }
+  .chan-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius);
+    padding: 32px;
+  }
+  .chan-card .chan-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .chan-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .chan-icon.ig { background: linear-gradient(135deg, var(--gold), var(--ig-tag)); }
+  .chan-icon.wa { background: var(--wa-tag); }
+  .chan-card h3 { color: var(--cream); font-size: 20px; }
+  .chan-card ul { list-style: none; }
+  .chan-card li {
+    display: flex;
+    gap: 10px;
+    font-size: 14.5px;
+    color: #D9DFEC;
+    padding: 9px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .chan-card li:first-of-type { border-top: none; }
+  .chan-card li::before {
+    content: "";
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  @media (max-width: 760px) {
+    .chan-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- FOR WHOM ---------- */
+  .who-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .who-card {
+    padding: 28px 24px;
+    border-radius: var(--radius);
+    background: var(--paper);
+    border: 1px solid var(--line);
+  }
+  .who-card h3 { font-size: 17px; margin-bottom: 8px; }
+  .who-card p { font-size: 14px; color: var(--ink-soft); }
+  @media (max-width: 760px) {
+    .who-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- FINAL CTA ---------- */
+  .final-cta {
+    text-align: center;
+    padding: 100px 0;
+  }
+  .final-cta h2 {
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    max-width: 20ch;
+    margin: 0 auto 18px;
+  }
+  .final-cta p {
+    color: var(--ink-soft);
+    max-width: 46ch;
+    margin: 0 auto 34px;
+    font-size: 16.5px;
+  }
+
+  /* ---------- LEAD FORM ---------- */
+  .lead-form-wrap {
+    max-width: 480px;
+    margin: 44px auto 0;
+    text-align: left;
+  }
+  .lead-form-divider {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .lead-form {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: var(--shadow);
+  }
+  .lead-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .lead-form input,
+  .lead-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    color: var(--ink);
+    background: var(--cream);
+    transition: border-color .18s ease;
+  }
+  .lead-form input:focus,
+  .lead-form textarea:focus {
+    outline: none;
+    border-color: var(--gold-dark);
+  }
+  .lead-form textarea {
+    min-height: 84px;
+    resize: vertical;
+  }
+  .lead-form .btn-primary {
+    justify-content: center;
+    margin-top: 6px;
+    width: 100%;
+  }
+  .lead-form-status {
+    margin-top: 14px;
+    font-size: 13.5px;
+    text-align: center;
+    min-height: 18px;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 34px 0;
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .footer-inner strong { color: var(--navy); }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none">
+        <path d="M3 22C3 22 8 12 16 12C24 12 29 22 29 22" stroke="#E0A63A" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M3 22H29" stroke="#16213E" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M9 22V16.5M16 22V13.5M23 22V16.5" stroke="#16213E" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Bridge Automation
+    </div>
+    <nav class="nav-links">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#canais">Canais</a>
+      <a href="#para-quem">Para quem</a>
+    </nav>
+    <a class="nav-cta" href="https://wa.me/5574999134241" target="_blank" rel="noopener">Falar no WhatsApp</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow tag-mono"><span class="eyebrow-dot"></span>Grupo Bridge · Atendimento automatizado</div>
+      <h1>Toda mensagem, respondida na hora — <em>mesmo enquanto você dorme.</em></h1>
+      <p class="lede">O Bridge Automation conecta o Instagram e o WhatsApp do seu negócio a uma inteligência artificial que entende cada cliente, responde na hora e deixa a conversa pronta pra você fechar.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="https://wa.me/5574999134241" target="_blank" rel="noopener">Quero automatizar meu atendimento</a>
+        <a class="link-secondary" href="#como-funciona">Ver como funciona</a>
+      </div>
+    </div>
+
+    <div class="demo-stage" aria-hidden="true">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-head">
+          <div class="avatar"></div>
+          <div>
+            <div class="who">Bridge Automation</div>
+            <div class="sub">Conversa comercial</div>
+          </div>
+          <span class="chan-chip">Instagram</span>
+        </div>
+
+        <div class="bubble them b1">Oi! Vocês têm vaga pra mentoria de carreira?</div>
+        <div class="typing"><span></span><span></span><span></span></div>
+        <div class="bubble us b2">Oi! Temos sim 💛 Me conta rapidinho seu momento atual que já te indico o formato certo.</div>
+        <div class="bubble them b3">Perfeito! Tô pensando em mudar de área...</div>
+      </div>
+
+      <div class="wa-peek">
+        <span class="chan-chip">WhatsApp</span>
+        <div class="wa-msg">Show, te chamo por aqui então pra gente continuar 🌉</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag-mono">Como funciona</span>
+      <h2>Três passos, sem complicação</h2>
+      <p>Nenhum roteiro engessado. A IA lê o contexto real do seu negócio antes de responder.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <span class="num">01</span>
+        <h3>Alguém manda mensagem</h3>
+        <p>No Instagram — direct ou comentário — ou direto no WhatsApp do seu negócio.</p>
+      </div>
+      <div class="step reveal">
+        <span class="num">02</span>
+        <h3>A IA entende e responde</h3>
+        <p>Com o contexto do seu negócio já configurado, ela responde na hora, do jeito certo.</p>
+      </div>
+      <div class="step reveal">
+        <span class="num">03</span>
+        <h3>Você entra só pra fechar</h3>
+        <p>A conversa fica organizada e pronta — você assume quando quiser, sem perder o fio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="canais" class="channels">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag-mono">Canais</span>
+      <h2>Um sistema. Dois canais.</h2>
+      <p>Instagram e WhatsApp funcionando com a mesma inteligência, cada um do seu jeito.</p>
+    </div>
+    <div class="chan-grid">
+      <div class="chan-card reveal">
+        <div class="chan-top">
+          <div class="chan-icon ig">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="4" stroke="#fff" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1" fill="#fff"/></svg>
+          </div>
+          <h3>Instagram</h3>
+        </div>
+        <ul>
+          <li>Responde comentários públicos automaticamente</li>
+          <li>Manda uma mensagem privada pra continuar a conversa em particular</li>
+          <li>Entende a intenção por trás do comentário — preço, interesse, dúvida</li>
+        </ul>
+      </div>
+      <div class="chan-card reveal">
+        <div class="chan-top">
+          <div class="chan-icon wa">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3C7 3 3 7 3 12c0 1.8.5 3.4 1.4 4.9L3 21l4.3-1.3C8.7 20.5 10.3 21 12 21c5 0 9-4 9-9s-4-9-9-9Z" stroke="#fff" stroke-width="1.6"/></svg>
+          </div>
+          <h3>WhatsApp</h3>
+        </div>
+        <ul>
+          <li>Atendimento contínuo, com memória de toda a conversa</li>
+          <li>Contexto do seu negócio sempre presente na resposta</li>
+          <li>Encaminha pra um atendente humano quando pedirem</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="para-quem">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag-mono">Para quem</span>
+      <h2>Feito pra quem vende conversando</h2>
+      <p>Se o seu negócio depende de responder gente rápido e bem, é pra você.</p>
+    </div>
+    <div class="who-grid">
+      <div class="who-card reveal">
+        <h3>Coaches e mentores</h3>
+        <p>Que recebem a mesma pergunta várias vezes por dia e não têm tempo de repetir a resposta.</p>
+      </div>
+      <div class="who-card reveal">
+        <h3>Criadores de curso</h3>
+        <p>Que precisam qualificar interessados antes de chamar pra uma conversa de verdade.</p>
+      </div>
+      <div class="who-card reveal">
+        <h3>Pequenos negócios e prestadores</h3>
+        <p>Que perdem venda porque a mensagem chegou fora do horário e ninguém respondeu a tempo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta" id="contato">
+  <div class="wrap">
+    <h2 class="reveal">Pronto pra parar de perder mensagens?</h2>
+    <p class="reveal">Fala com a gente agora e configuramos o Bridge Automation pro seu negócio.</p>
+    <a class="btn-primary reveal" href="https://wa.me/5574999134241" target="_blank" rel="noopener">Falar no WhatsApp</a>
+
+    <div class="lead-form-wrap reveal">
+      <p class="lead-form-divider">ou deixe seus dados que a gente te chama</p>
+      <form id="leadForm" class="lead-form" novalidate>
+        <div>
+          <label for="lead-nome">Nome</label>
+          <input id="lead-nome" name="nome" type="text" autocomplete="name" required>
+        </div>
+        <div>
+          <label for="lead-telefone">WhatsApp (com DDD)</label>
+          <input id="lead-telefone" name="telefone" type="tel" autocomplete="tel" placeholder="74999999999">
+        </div>
+        <div>
+          <label for="lead-email">E-mail</label>
+          <input id="lead-email" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com">
+        </div>
+        <div>
+          <label for="lead-mensagem">Conte um pouco sobre seu negócio</label>
+          <textarea id="lead-mensagem" name="mensagem" placeholder="Ex: tenho um Instagram de mentoria e recebo muita mensagem repetida"></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Quero automatizar meu atendimento</button>
+      </form>
+      <p id="leadFormStatus" class="lead-form-status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span><strong>Bridge Automation</strong> faz parte do Grupo Bridge.</span>
+    <span>bridgeatravessia.com.br</span>
+  </div>
+</footer>
+
+<script>
+  const items = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    items.forEach(el => io.observe(el));
+  } else {
+    items.forEach(el => el.classList.add('in'));
+  }
+
+  // ---------- Formulário de leads (grava em automation_leads via Worker) ----------
+  const LEADS_ENDPOINT = 'https://bridge-instagram.bridgeatravessia.workers.dev/leads/submit';
+
+  const leadForm = document.getElementById('leadForm');
+  const leadFormStatus = document.getElementById('leadFormStatus');
+
+  if (leadForm) {
+    leadForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const nome = leadForm.nome.value.trim();
+      const telefone = leadForm.telefone.value.trim();
+      const email = leadForm.email.value.trim();
+      const mensagem = leadForm.mensagem.value.trim();
+
+      leadFormStatus.style.color = '#B3261E';
+
+      if (!nome) {
+        leadFormStatus.textContent = 'Por favor, informe seu nome.';
+        return;
+      }
+      if (!telefone && !email) {
+        leadFormStatus.textContent = 'Informe pelo menos um contato: WhatsApp ou e-mail.';
+        return;
+      }
+
+      const submitBtn = leadForm.querySelector('button[type="submit"]');
+      const textoOriginalBtn = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      leadFormStatus.style.color = 'var(--ink-soft)';
+      leadFormStatus.textContent = '';
+
+      try {
+        const res = await fetch(LEADS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome,
+            telefone,
+            email,
+            mensagem,
+            origem: 'landing_automation',
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          leadFormStatus.style.color = '#2E9E5B';
+          leadFormStatus.textContent = 'Recebemos seu contato! Em breve falamos com você. 💛';
+          leadForm.reset();
+        } else {
+          leadFormStatus.style.color = '#B3261E';
+          leadFormStatus.textContent = data.erro || 'Não foi possível enviar agora. Tente novamente em instantes.';
+        }
+      } catch (err) {
+        leadFormStatus.style.color = '#B3261E';
+        leadFormStatus.textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = textoOriginalBtn;
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
